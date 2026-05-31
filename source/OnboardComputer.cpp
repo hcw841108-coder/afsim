@@ -230,7 +230,7 @@ void XDU::OnboardComputer::ProcessMessage(std::string aMessageStr)
 		}
 
 		// 【核心修改】动态拼接平台名：sat-SAR + threadId → sat-SAR0、sat-SAR1...
-		std::string platformName = "sat-SAR" + std::to_string(threadId);
+		std::string platformName = "plane" + std::to_string(threadId);
 		WsfPlatform* satPlatformPtr = GetSimulation().GetPlatformByName(platformName);
 
 		if (!satPlatformPtr)

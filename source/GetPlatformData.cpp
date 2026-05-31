@@ -6,6 +6,12 @@ GetPlatformData::GetPlatformData()
 {
 }
 
+GetPlatformData::~GetPlatformData()
+{
+	Shutdown();
+}
+
+//===================== 收集单个平台数据 =====================
 bool GetPlatformData::SingleCollectPlatformData(WsfPlatform* platform, PlatformData& data)
 {
 	if (platform == nullptr)
@@ -48,15 +54,16 @@ bool GetPlatformData::SingleCollectPlatformData(WsfPlatform* platform, PlatformD
 	return true;
 }
 
-bool GetPlatformData::CollectAllPlatformData(WsfSimulation& sim, std::vector<PlatformData>& outData)
+//===================== 收集所有平台数据 =====================
+bool GetPlatformData::CollectAllPlatformData(WsfSimulation& sim)
 {
 	//清空数据
-	outData.clear();
+	mAllPlatforms.clear();
 
 	//获取平台数量
 	mPlatformcount = sim.GetPlatformCount();
 
-	outData.reserve(mPlatformcount); // 预分配空间，提升性能
+	mAllPlatforms.reserve(mPlatformcount); // 预分配空间，提升性能
 
 	//遍历平台并收集数据
 	for (size_t i = 0; i < mPlatformcount; ++i)
@@ -71,15 +78,17 @@ bool GetPlatformData::CollectAllPlatformData(WsfSimulation& sim, std::vector<Pla
 
 		if (SingleCollectPlatformData(platform, data))
 		{
-			outData.push_back(data);
+			mAllPlatforms.push_back(data);
 		}
 	}
-
-	if(!outData.empty())
+	double simTime = GetSimulation().GetSimTime();
+	if(!mAllPlatforms.empty())
 	{
 		std::cout << "[GetPlatformData] 数据已采集" << std::endl;
+		std::cout << "[GetPlatformData] 仿真时间 = "
+			<< simTime;
 		std::cout << "[GetPlatformData] 平台数量 = "
-			<< outData.size()
+			<< mAllPlatforms.size()
 			<< std::endl;
 	}
 	else
@@ -89,4 +98,32 @@ bool GetPlatformData::CollectAllPlatformData(WsfSimulation& sim, std::vector<Pla
 	}
 
 	return true;
+}
+
+//===================== 清理 =====================
+void GetPlatformData::Shutdown()
+{
+	if (mShutDown) {
+		return;
+	}
+	mShutDown = true;
+
+	mAllPlatforms.clear();
+}
+
+//===================== 仿真开始 =====================
+void GetPlatformData::Start()
+{
+	mShutDown = false;
+	std::cout<<"仿真开始"<<std::endl;
+
+	WsfSimulation& sim = GetSimulation();
+	CollectAllPlatformData(sim);
+}
+
+//===================== 仿真结束 =====================
+void GetPlatformData::Complete(double aSimTime)
+{
+	std::cout<<"仿真时间 = " << aSimTime << std::endl;
+	std::cout << "仿真结束" << std::endl;
 }

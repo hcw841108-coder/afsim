@@ -44,14 +44,17 @@ class GetPlatformData : public WsfSimulationExtension
 public:
 	GetPlatformData();
 	~GetPlatformData();
-
+	void Start() override;
+	void Shutdown();
+	void Complete(double aSimTime) override;
 
 
 private:
 	bool SingleCollectPlatformData(WsfPlatform* platform, PlatformData& data);
-	bool CollectAllPlatformData(WsfSimulation& sim, std::vector<PlatformData>& outData);
+	bool CollectAllPlatformData(WsfSimulation& sim);
 	int mPlatformcount;
 	std::vector<PlatformData> mAllPlatforms;
+	bool mShutDown;
 
 };
 
